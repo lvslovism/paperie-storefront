@@ -42,13 +42,7 @@ export type ImageItem = { title: string; text: string; image: string };
  * document, so the header drops its centre column and its drawer with it and
  * keeps only the cart / member / call-to-action cluster.
  */
-export const navigation: NavItem[] = [
-  { label: '首頁', href: '/' },
-  { label: '關於我們', href: '/about' },
-  { label: '全部商品', href: '/products' },
-  { label: '專欄', href: '/blog' },
-  { label: '聯絡我們', href: '/contact' }
-];
+export const navigation: NavItem[] = [];
 
 /**
  * The header controls that sit opposite the wordmark, in every shape of shop.
@@ -62,7 +56,7 @@ export const header = {
   cart: '購物車',
   member: '會員',
   ctaLabel: '立即選購',
-  ctaHref: '/products',
+  ctaHref: '/#catalogue',
   /**
    * SHOWCASE ONLY (`flags.commerce: false`). The single button that replaces
    * the whole cart / member / call-to-action cluster.
@@ -72,34 +66,34 @@ export const header = {
    * decision, and copy decisions live in brand/. A transacting shop never
    * renders it and can leave it as shipped.
    */
-  inquiryLabel: '加 LINE 詢問'
+  inquiryLabel: '立即詢問'
 };
 
 /** Footer link columns. The company block is appended by the component. */
+/*
+ * The comp draws 選購指南, 客戶服務 and 關於我們 columns. Their entries —
+ * 所有商品, 配送說明, 品牌故事, 門市資訊 … — would point at pages this one-page showcase
+ * never builds, so they are not here: the first column walks the home page
+ * instead, and the second carries the three documents that DO exist. With the
+ * brand column and the derived 聯絡資訊 block that keeps the template's four
+ * columns, and every link in them resolves.
+ */
 export const footerGroups: FooterGroup[] = [
   {
     title: '快速連結',
     links: [
-      { label: '全部商品', href: '/products' },
-      { label: '關於我們', href: '/about' },
-      { label: '專欄', href: '/blog' }
+      { label: '精選商品', href: '/#catalogue' },
+      { label: '書寫時刻', href: '/#scenes' },
+      { label: '常見問題', href: '/#faq' },
+      { label: '聯絡我們', href: '/#contact' }
     ]
   },
   {
     title: '購物資訊',
     links: [
-      { label: '常見問題', href: '/faq' },
       { label: '使用條款', href: '/terms' },
       { label: '隱私權政策', href: '/privacy' },
       { label: '退換貨政策', href: '/returns-policy' }
-    ]
-  },
-  {
-    title: '會員服務',
-    links: [
-      { label: '會員登入', href: '/login' },
-      { label: '會員中心', href: '/account' },
-      { label: '訂單查詢', href: '/account' }
     ]
   }
 ];
@@ -229,6 +223,21 @@ export type HeroCopy = {
   };
   title: string;
   /**
+   * A handwritten line set on the far side of the hero from the copy, in
+   * `--font-script` and the accent colour. OPTIONAL — absent or empty renders
+   * nothing. Only HomeLanding reads it.
+   *
+   * ⚠️ The script face is loaded with Google Fonts' `text=` subset, so it
+   * carries ONLY the glyphs of the lines written in this file. Change the
+   * words and change `text=` in `identity.fontStylesheets` in the same edit.
+   */
+  script?: string;
+  /**
+   * The small letterspaced line at the foot of the hero, after a short rule.
+   * OPTIONAL — absent or empty renders nothing. Only HomeLanding reads it.
+   */
+  tagline?: string;
+  /**
    * The small line above the headline. Empty string renders nothing — a comp
    * with no eyebrow is a choice, not an omission, and the hero drops the
    * element rather than leaving a blank line where it would have been. The KEY
@@ -309,26 +318,42 @@ export type HomeLandingCopy = {
   /**
    * Occasion cards — the "what is this for" band. Emptying the array removes it.
    *
-   * THREE. The grid is three columns at desktop, two below 900px and one below
-   * 560px, so a fourth entry does not widen the row — it drops to a second row
-   * on its own and reads as a mistake. The count is a layout fact, not a
-   * preference, which is why it is stated here rather than left to be found.
+   * FOUR, in this shop. The template's grid is three columns; this shop's
+   * HomeLanding runs four at desktop, two from 1024px down and one from 560px
+   * down, so four entries fill one desktop row and two tablet rows exactly.
+   * A fifth would drop to a row on its own and read as a mistake.
    */
-  scenes: { title: string; items: ImageItem[] };
+  scenes: {
+    /** `\n` renders as a line break. */
+    title: string;
+    /**
+     * The small letterspaced label opposite the title. `\n` renders as a line
+     * break. OPTIONAL; absent renders the title alone.
+     */
+    eyebrow?: string;
+    items: (ImageItem & { imageAlt?: string })[];
+  };
 
   /**
    * The FAQ disclosure block. The questions are NOT authored here — the page
    * reads `faq.items` further down and resolves the payment and shipping
    * answers from merchant config, exactly as the standalone /faq page does.
    * One source, one answer.
+   *
+   * `eyebrow` and `lead` empty render nothing. `aside` is the small label in
+   * the right margin and `script` the handwritten line under it; both are
+   * decoration on a wide screen only, and both are OPTIONAL. `script` shares
+   * the hero's `text=` font subset — see `HeroCopy.script`.
    */
-  faq: { eyebrow: string; title: string; lead: string };
+  faq: { eyebrow: string; title: string; lead: string; aside?: string; script?: string };
   /**
    * The contact strip above the footer. The phone, e-mail and service hours it
    * shows are NOT authored here: they derive from the merchant record, same as
    * the footer and the legal pages, so the three cannot disagree.
    */
   lineCta: {
+    /** The letterspaced line above the title. OPTIONAL; empty renders nothing. */
+    eyebrow?: string;
     /** `{channel}` is replaced with `identity.line.id`. */
     title: string;
     /** Two short lines under the title. More render; they just get long. */
@@ -434,60 +459,123 @@ export const homeMultipage: HomeMultipageCopy = {
  */
 export const homeLanding: HomeLandingCopy = {
   preset: 'landing',
-  metaTitle: '首頁',
-  metaDescription: `${identity.name} 線上商店`,
+  metaTitle: '書寫，讓日常更美好',
+  metaDescription:
+    '精選全球質感文具：鋼筆、筆記本、手帳與文具禮盒，陪伴你書寫生活的每一個重要時刻。',
 
+  /*
+   * A LIGHT photograph under dark copy, as drawn: a window-lit writing desk,
+   * the copy on its calm left side, a pale wash from the left.
+   *
+   * MEASURED per glyph, per docs/PITFALLS.md #7: each character's own rect,
+   * with `.hero-copy > *` hidden (the script: its ink made transparent, so
+   * its wash stays), against the colour that character is set in. 2026-09-22,
+   * hero-v1 / hero-mobile-v1:
+   *
+   *   1440x900, 1280x800, 1100x800   0 / 106 glyphs with any pixel under
+   *              4.5. The script was first set where the comp draws it, lower
+   *              right: that corner is the journal and a mid-tone oak table,
+   *              18 of 18 glyphs under (min 1.00). Moved to the upper right,
+   *              over the blurred wall and a soft page-ground wash: min 7.11.
+   *   820x1180   0 / 88 (no script at this width).
+   *   390x844    standard scrim: 7 / 88 (the lead's line ends on the window,
+   *              min 3.09). HomeLanding carries the wash further on a phone
+   *              (solid to 55%, gone by 100%): 0 / 88, min 6.40.
+   *
+   * A conclusion about THESE words on THESE crops. Change either, measure again.
+   */
   hero: {
     tone: 'light',
-    eyebrow: 'EXAMPLE STORE',
-    title: '這裡是首頁主標題',
+    copyGround: 'scrim',
+    mobileCopyGround: 'scrim',
+    align: 'left',
+    scrim: { from: 'left', tint: 'surface', depth: 'standard' },
+    eyebrow: 'STATIONERY FOR A BETTER LIFE',
+    title: '書寫，\n讓日常更美好。',
     /** `\n` renders as a line break — the block is `white-space: pre-line`. */
-    description: '這段副標來自 brand/copy.ts。\n替換成你要對客人說的第一句話。',
-    ctaLabel: '立即選購',
+    description: '精選全球質感文具，陪伴你記錄靈感、\n規劃生活、書寫屬於自己的節奏。',
+    script: 'More Than Stationery',
+    tagline: 'WRITE / PLAN / CREATE / LIVE',
+    ctaLabel: '立即探索 →',
     ctaHref: '#catalogue',
-    image: '/assets/home/hero.svg',
-    mobileImage: '/assets/home/hero-mobile.svg',
-    imageAlt: '首頁主視覺'
+    image: '/assets/home/hero-v1.jpg',
+    mobileImage: '/assets/home/hero-mobile-v1.jpg',
+    imageAlt: '書桌上的皮革手帳與眼鏡，旁邊亮著一盞暖色桌燈'
   },
 
-  /* No `icon`: the strip numbers itself 1..5 from position. A shop with real
-     glyphs adds them and gets those instead. */
+  /* Five, as drawn. HomeLanding derives the column count from the entries. */
   trust: {
     items: [
-      { title: '重點一', text: '一句話說明這項優勢' },
-      { title: '重點二', text: '一句話說明這項優勢' },
-      { title: '重點三', text: '一句話說明這項優勢' },
-      { title: '重點四', text: '一句話說明這項優勢' },
-      { title: '重點五', text: '一句話說明這項優勢' }
+      { icon: '/assets/home/trust/quality.svg', title: '嚴選品質', text: '來自世界各地的質感品牌' },
+      { icon: '/assets/home/trust/style.svg', title: '風格多元', text: '從日常書寫到專業文創' },
+      { icon: '/assets/home/trust/gift.svg', title: '送禮首選', text: '精緻包裝，傳遞心意' },
+      { icon: '/assets/home/trust/shipping.svg', title: '快速出貨', text: '現貨供應・安心配送' },
+      { icon: '/assets/home/trust/care.svg', title: '貼心服務', text: '專業諮詢・售後保障' }
     ] as IconItem[]
   },
 
-  /* No "view all" link: this block already IS the whole catalogue. */
+  /* Title only, set left, as drawn. The comp's "More Products →" is not
+     here: this block already IS the whole catalogue. */
   catalogue: {
-    eyebrow: 'PRODUCTS',
-    title: '全部商品',
-    lead: '一句話說明這裡賣的是什麼。'
+    eyebrow: '',
+    title: '精選商品',
+    lead: ''
   },
 
+  /*
+   * Four, as drawn — work notes, the planner, sketching and a gift, one
+   * scene per way the catalogue gets used.
+   *
+   * The captions sit ON the photographs, over a dark wash. MEASURED per glyph
+   * on each card, caption ink made transparent so the wash stays, at 1440,
+   * 820 and 390 wide, 2026-09-22: 0 glyphs with any pixel under 4.5 on all
+   * four; weakest minimum 7.98 (card 1's title at 1440). Cards 2 and 3 are
+   * pale at the lower left and still clear 8.0 — the wash carries them.
+   */
   scenes: {
-    title: '一句話說明這些商品用在什麼場合',
+    title: '生活中的書寫時刻',
+    eyebrow: 'A MORE MEANINGFUL EVERYDAY',
     items: [
-      { title: '情境一', text: '簡短說明', image: '/assets/home/scene-01.svg' },
-      { title: '情境二', text: '簡短說明', image: '/assets/home/scene-02.svg' },
-      { title: '情境三', text: '簡短說明', image: '/assets/home/scene-03.svg' }
-    ] as ImageItem[]
+      {
+        title: '工作紀錄',
+        text: '讓想法更清晰',
+        image: '/assets/home/scene-01-v1.jpg',
+        imageAlt: '在木書桌上以鋼筆寫筆記的手'
+      },
+      {
+        title: '日常手帳',
+        text: '收藏生活的小確幸',
+        image: '/assets/home/scene-02-v1.jpg',
+        imageAlt: '編織毯上的週計畫手帳與一支黃色筆'
+      },
+      {
+        title: '靈感創作',
+        text: '記錄每一個靈光',
+        image: '/assets/home/scene-03-v1.jpg',
+        imageAlt: '用鉛筆在素描本上畫紋樣的手'
+      },
+      {
+        title: '送禮心意',
+        text: '傳遞溫暖的祝福',
+        image: '/assets/home/scene-04-v1.jpg',
+        imageAlt: '以牛皮紙與淺藍緞帶包裝的禮物'
+      }
+    ]
   },
 
   faq: {
-    eyebrow: 'FAQ',
+    eyebrow: '',
     title: '常見問題',
-    lead: '常被問到的問題；付款與配送的答案由商家設定自動帶出。'
+    lead: '',
+    aside: 'FREQUENTLY ASKED QUESTIONS'
   },
 
   lineCta: {
-    title: '加入 LINE {channel}',
-    lines: ['掌握新品資訊與專屬優惠', '這兩行來自 brand/copy.ts，替換成你要說的話。'],
-    buttonLabel: '立即加入 LINE',
+    eyebrow: "LET'S WRITE A BETTER TOMORROW",
+    title: '從一支喜歡的筆，開始更好的生活。',
+    lines: [],
+    /* The arrow is drawn by HomeLanding's own SVG, so it is not typed here. */
+    buttonLabel: '立即詢問',
     qrCaption: '掃描加入 LINE 好友'
   }
 };
@@ -496,7 +584,7 @@ export const homeLanding: HomeLandingCopy = {
  * The preset this shop uses. Swap to `homeLanding` for a one-page shop; nothing
  * else changes — src/pages/index.astro renders whichever `preset` says.
  */
-export const home: HomeCopy = homeMultipage;
+export const home: HomeCopy = homeLanding;
 
 /**
  * Every preset the template ships, selected or not.
@@ -540,10 +628,9 @@ export type TrustItem = { title: string; body: string; icon?: string };
 
 export const trust: { items: TrustItem[] } = {
   items: [
-    { icon: 'shield', title: '正品保證', body: '一句話說明你的品質保證。' },
-    { icon: 'delivery', title: '快速出貨', body: '一句話說明你的出貨節奏。' },
-    { icon: 'payment', title: '多元付款', body: '一句話說明可用的付款方式。' },
-    { icon: 'support', title: '售後服務', body: '一句話說明你的售後承諾。' }
+    { icon: 'shield', title: '嚴選品質', body: '來自世界各地的質感品牌，逐一挑選。' },
+    { icon: 'delivery', title: '快速出貨', body: '現貨供應・安心配送。' },
+    { icon: 'support', title: '貼心服務', body: '專業諮詢・售後保障。' }
   ]
 };
 
@@ -622,19 +709,33 @@ export const productDetail = {
    * composer, it does not send anything.
    */
   inquiryLabel: '立即詢問',
-  inquiryMessage: '我想詢問：{product}',
+  /*
+   * EMPTY on purpose, so every enquiry opens the plain add-friend link
+   * (`line.me/R/ti/p/…`) with nothing pre-typed — src/lib/line.ts falls back to
+   * it when the message is empty.
+   *
+   * The pre-filled form (`oaMessage`) was measured on 2026-09-21 and fails hard
+   * on desktop: line.me redirects a desktop browser straight to LINE's own
+   * homepage (www.line.me/en/), with no account and no message. `ti/p` serves
+   * the "Add LINE friend" page with the QR on desktop. Phones handed
+   * `oaMessage` over to the app with the text intact, but a helper cannot tell
+   * the two apart per device, so the one link that works everywhere wins.
+   * The cost: 客服 can no longer tell from the first message which product,
+   * or which shop, a chat came from.
+   */
+  inquiryMessage: '',
 
   assurances: [
-    { title: '配送說明', text: '一句話說明配送方式' },
+    { title: '嚴選品質', text: '來自世界各地的質感品牌' },
     { title: '七日鑑賞期', text: '商品到貨日起算 7 天' },
-    { title: '安心付款', text: '多元付款・安全可靠' }
+    { title: 'LINE 諮詢', text: '筆尖、墨色與規格一對一回覆' }
   ] as IconItem[],
 
   /** Tab labels, in render order. The first tab is the API description. */
   tabs: {
     description: '商品說明',
-    ingredients: '規格與材質',
-    ordering: '訂購須知'
+    ingredients: '使用與保養',
+    ordering: '詢問須知'
   },
 
   /** Shown when a product carries no description of its own. */
@@ -642,16 +743,16 @@ export const productDetail = {
 
   /** Second tab. Replace with the facts your category actually needs. */
   ingredients: [
-    '這一行說明商品的材質、成分或規格。',
-    '這一行說明保存、清潔或使用上的注意事項。',
+    '鋼筆請定期以清水清洗筆尖與吸墨器，更換墨水顏色前務必洗淨，避免墨水混色。',
+    '紙製品與皮革製品請避免潮濕與陽光直射；皮革可定期以保養油擦拭。',
     '本頁內容為範例文案，實際規格以商品包裝標示為準。'
   ],
 
   /** Third tab. Ordering / shipping expectations, not the checkout's own rules. */
   ordering: [
-    '訂單成立後將於 1-2 個工作天內出貨。',
-    '這一行說明配送方式的限制或建議。',
-    '本頁內容為範例文案，實際出貨與配送規範以結帳頁與客服說明為準。'
+    '本站為展示範例站，不提供線上結帳；點選「立即詢問」即可透過 LINE 與我們聯繫。',
+    '詢問時請告知商品與規格，我們會回覆供貨與出貨時程。',
+    '本頁內容為範例文案，商品與價格僅供版面示意。'
   ],
 
   relatedTitle: '您可能也喜歡'
@@ -716,39 +817,39 @@ export const faq = {
   },
   ctaCopy: '找不到您的問題？',
   ctaLabel: '聯絡我們',
-  ctaHref: '/contact',
+  ctaHref: '/#contact',
+  /*
+   * Five questions, all authored, in the comp's order. The payment and shipping DERIVED answers are
+   * not asked here: this merchant sells nothing online and declares no payment
+   * or shipping methods, so both derives return null and would drop their
+   * question anyway (HomeLanding's DERIVE_ANSWER). 訂單多久會出貨 is a lead-time
+   * question, not the list of carriers the shipping derive projects.
+   */
   items: [
     {
-      category: '商品問題',
-      question: '商品建議怎麼使用？',
-      answer: '請依包裝標示的方式使用；若有特殊狀況，建議先小範圍試用。'
+      category: '訂購與出貨',
+      question: '商品有現貨嗎？多久會出貨？',
+      answer: '本站不提供線上結帳。透過 LINE 詢問確認品項與規格後，現貨商品一般於 1–2 個工作天內出貨；缺貨或預購品項會另行告知時程。'
+    },
+    {
+      category: '訂購與出貨',
+      question: '可以開立統一發票嗎？',
+      answer: '本站為展示範例站，頁面所列公司資訊與統一編號為測試值。實際營運時，可於詢問時提供抬頭與統一編號，開立電子發票。'
     },
     {
       category: '商品問題',
-      question: '商品開封後可以放多久？',
-      answer: '建議於包裝標示的保存期限內使用，並存放於陰涼乾燥處。'
+      question: '是否提供禮品包裝服務？',
+      answer: '可以。詢問時告知需要包裝的品項，我們會以簡約的紙盒與棉繩包裝；也可以直接選擇已附禮盒的文具禮盒。'
     },
     {
-      category: '購物與付款',
-      question: '要怎麼完成購買？',
-      answer: '將商品加入購物車後進入結帳流程，填寫聯絡與配送資訊即可送出訂單。'
-    },
-    { category: '購物與付款', question: '提供哪些付款方式？', answer: '', derive: 'payment' },
-    {
-      category: '購物與付款',
-      question: '下單後可以修改或取消訂單嗎？',
-      answer: '若訂單尚未出貨，請儘快聯絡我們協助修改或取消；已出貨則依退換貨流程處理。'
-    },
-    { category: '配送與取貨', question: '提供哪些配送方式？', answer: '', derive: 'shipping' },
-    {
-      category: '配送與取貨',
-      question: '運費是怎麼計算的？',
-      answer: '運費會於結帳頁依所選配送方式自動試算，實際金額以結帳頁為準。'
+      category: '售後服務',
+      question: '如果收到商品有問題怎麼辦？',
+      answer: '請保留商品、包裝與照片，並於收貨後 24 小時內透過 LINE 官方帳號與我們聯繫。瑕疵與運送損壞會依退換貨政策處理。'
     },
     {
-      category: '會員與訂單',
-      question: '如何查詢訂單與配送進度？',
-      answer: '登入會員後可於會員中心查看歷史訂單與配送狀態。'
+      category: '售後服務',
+      question: '有實體門市可以參觀嗎？',
+      answer: '本站為展示範例站，目前沒有實體門市。商品規格、筆尖粗細或墨色的問題，歡迎點選「立即詢問」透過 LINE 與我們聯繫。'
     }
   ] as FaqItem[]
 };
@@ -761,11 +862,11 @@ export const notFound = {
   lead: `你開啟的頁面不存在或已被移動。
 下面是幾個還在的入口。`,
   /** The hero runs dark over this image, so pick one that can carry white type. */
-  heroImage: '/assets/home/hero.svg',
+  heroImage: '/assets/home/hero-v1.jpg',
   heroImageAlt: '找不到頁面',
   ctaLabel: '回到首頁',
-  secondaryCtaLabel: '繼續選購',
-  secondaryCtaHref: '/products',
+  secondaryCtaLabel: '瀏覽商品',
+  secondaryCtaHref: '/#catalogue',
   /** The recommendation row. Products come from the commerce API. */
   recommendTitle: '為你推薦',
   quickLinksTitle: '快速連結',
@@ -775,9 +876,9 @@ export const notFound = {
    */
   quickLinks: [
     { label: '回到首頁', href: '/' },
-    { label: '全部商品', href: '/products' },
-    { label: '專欄', href: '/blog' },
-    { label: '聯絡我們', href: '/contact' }
+    { label: '精選商品', href: '/#catalogue' },
+    { label: '常見問題', href: '/#faq' },
+    { label: '聯絡我們', href: '/#contact' }
   ] as IconLink[]
 };
 

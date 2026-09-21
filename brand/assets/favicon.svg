@@ -1,5 +1,4 @@
-<!-- template-placeholder: replace this file with real artwork. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect width="32" height="32" rx="4" fill="#1a1a1a"/>
-  <text x="16" y="17" fill="#ffffff" font-family="Georgia, serif" font-size="16" text-anchor="middle" dominant-baseline="middle">E</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="PAPERIE">
+  <rect width="32" height="32" rx="6" fill="#496982"/>
+  <text x="16" y="16.5" fill="#faf9f6" font-family="Georgia, 'Times New Roman', serif" font-size="11" font-weight="600" letter-spacing="0.6" text-anchor="middle" dominant-baseline="middle">PPR</text>
 </svg>

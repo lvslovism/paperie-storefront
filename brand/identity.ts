@@ -266,14 +266,14 @@ export type Identity = {
 };
 
 export const identity: Identity = {
-  name: 'Example Store',
-  logoText: 'EXAMPLE STORE',
-  logoSubtext: 'ONLINE STORE',
-  tagline: '一個等待填入的商店',
+  name: 'PAPERIE',
+  logoText: 'PAPERIE',
+  logoSubtext: 'Write a Better Day',
+  tagline: '書寫，讓日常更美好',
   description:
-    'Example Store 是 commerce-storefront-template 的中性預設內容，請於 brand/ 填入實際品牌資料。',
-  footerBlurb: '這段文字來自 brand/identity.ts，替換成你的品牌敘述。',
-  copyright: 'Copyright © {year} Example Store. All rights reserved.',
+    '精選全球質感文具：鋼筆、筆記本、手帳與文具禮盒，陪伴你書寫生活的每一個重要時刻。',
+  footerBlurb: '精選全球質感文具，陪伴你書寫生活的每一個重要時刻。',
+  copyright: 'Copyright © {year} PAPERIE. All rights reserved.',
 
   locale: 'zh-Hant-TW',
   htmlLang: 'zh-Hant',
@@ -283,25 +283,51 @@ export const identity: Identity = {
   country: 'TW',
   phoneCountryCode: '+886',
 
-  storageNamespace: 'example-store',
+  storageNamespace: 'paperie',
 
   contact: {
-    email: 'service@example.com'
+    /* `.example.com` is reserved and reaches nobody — this showcase owns no
+       mail domain. */
+    email: 'service@paperie.example.com'
   },
 
   line: {
-    id: '@example',
-    addFriendUrl: '#'
+    id: '@060mzbbf',
+    /* The percent-encoded form src/lib/line.ts produces for the hrefs it
+       derives, so the strip's button and the product page's enquiry name the
+       account the same way. */
+    addFriendUrl: 'https://line.me/R/ti/p/%40060mzbbf'
   },
 
   /**
-   * Placeholder links. Dropping an entry removes that button from the footer
-   * without leaving a gap; emptying the array removes the row.
+   * The rail and the footer row, in this order.
+   *
+   * `sameAs: false` on all three: these are the Astrapath Marketing accounts
+   * every showcase in the family points at, not PAPERIE's own profiles.
+   * Asserting otherwise would merge the showcases into one entity.
+   *
+   * The comp's footer also draws a YouTube mark. There is no channel, so there
+   * is no entry — a glyph that links nowhere is worse than an absent one.
    */
   social: [
-    { label: 'LINE', href: '#', icon: '/assets/social/line.svg' },
-    { label: 'Instagram', href: '#', icon: '/assets/social/instagram.svg' },
-    { label: 'Facebook', href: '#', icon: '/assets/social/facebook.svg' }
+    {
+      label: 'LINE',
+      href: 'https://line.me/R/ti/p/%40060mzbbf',
+      icon: '/assets/social/line.svg',
+      sameAs: false
+    },
+    {
+      label: 'Instagram',
+      href: 'https://www.instagram.com/astrapath_marketing/',
+      icon: '/assets/social/instagram.svg',
+      sameAs: false
+    },
+    {
+      label: 'Facebook',
+      href: 'https://www.facebook.com/people/%E9%96%8B%E5%9C%96%E6%99%BA%E8%83%BD%E5%B0%8E%E5%AE%A2%E7%B3%BB%E7%B5%B1/61570800717026/',
+      icon: '/assets/social/facebook.svg',
+      sameAs: false
+    }
   ],
 
   assets: {
@@ -312,218 +338,145 @@ export const identity: Identity = {
     paymentBadges: []
   },
 
-  fontStylesheets: [],
+  /* Two stylesheets. The serif carries every heading, as drawn. The script face
+     sets exactly one line — the hero's `More Than Stationery` — so it is
+     requested with `text=` and Google serves a subset holding only those
+     glyphs. Change that line in brand/copy.ts and this `text=` has to change
+     with it, or the new letters fall back to `cursive`. */
+  fontStylesheets: [
+    'https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600&display=swap',
+    'https://fonts.googleapis.com/css2?family=Mrs+Saint+Delafield&display=swap&text=More%20Than%20Stationery'
+  ],
 
   tokens: {
     /**
-     * Neutral greyscale plus one accent. The template ships no brand colour on
-     * purpose — a palette that looks unfinished is a palette nobody forgets to
-     * replace.
+     * Sampled from design-mockups/01-home.png: warm off-white paper, a
+     * near-black blue-grey ink, a STEEL-BLUE accent (#496982) shared by the
+     * hero button and the LINE band, and a PALE footer.
+     *
+     * THREE STRUCTURAL DIFFERENCES from the two shops before this one.
+     *   - The product cards have no card: the photograph sits on the page and
+     *     the text under it. `catalogue-card-bg` is the page's own value, and
+     *     HomeLanding draws no card border or padding.
+     *   - The footer is PALE. There is no `groundPolarity.footer` — the footer
+     *     is always its own `footer` ground, measured on `footer-bg` with
+     *     whatever `footer-text` / `footer-heading` say — so a pale footer is
+     *     those two tokens set to ink, and the audit checks them there.
+     *   - The accent is steel blue, not a warm brown.
+     *
+     * DELIBERATE DEPARTURES, all for AA.
+     *   trust subtitles   #949496 (2.70 on the trust band) → text.faint #6d6d6f
+     *   footer blurb      #969797 (2.56 on the footer)     → footer-text #6d6d6f
+     *   FAQ questions     #6d7279 (4.34 on the row strip)  → #696d74 (4.65)
+     *   LINE eyebrow      #748ca1 (1.66 on the steel band) → #dee4e9 (4.52),
+     *                     LIFTED, not darkened: the ground is the dark side.
+     *   mist              #f0ede8 → #f2f0ec, because text.faint is 4.42 on
+     *                     the former and it is now an audited ink (below).
+     *
+     * Not adjusted: product names #4a4b58 (8.18), prices #563a34 (9.73), white
+     * on the steel band and button (5.79).
      */
     color: {
-      ink: '#1a1a1a',
-      text: '#444444',
-      muted: '#666666',
-      surface: '#ffffff',
-      soft: '#f5f5f5',
-      mist: '#ebebeb',
-      'header-bg': '#ffffff',
-      border: '#dddddd',
-      cta: '#1a1a1a',
+      ink: '#1b1d24',
+      text: '#4a4b58',
+      muted: '#563a34',
+      surface: '#faf9f6',
+      soft: '#f3f2ef',
+      mist: '#f2f0ec',
+      'header-bg': '#fbfaf8',
+      border: '#e2ded8',
+      cta: '#496982',
       'cta-text': '#ffffff',
-      /* There is no `accent` token, and its absence is the correction.
-       *
-       * One shipped for as long as this template has existed, was declared by
-       * every storefront extracted from it, and was read by NOTHING — zero
-       * `var(--color-accent)` in `src/`, and no contrast pass ever measured it.
-       * A colour that is declared, inlined into every page's `:root`, and never
-       * painted is worse than a missing one: it reads as the shop's accent, so
-       * the next person to want an accent edits it and nothing changes.
-       *
-       * The accent this palette actually paints is `cta`, resolved per ground
-       * as `--ground-accent`. It has two jobs — ink and fill — and
-       * `src/lib/grounds.mjs` now checks it at both floors. */
+      /* The header's 立即詢問, steel as drawn. Checked as a fill on the header
+         ground. */
+      'header-cta-bg': '#496982',
+      'header-cta-ink': '#ffffff',
       'on-dark': '#ffffff',
       /** Form and request errors. Functional, not decorative. */
       danger: '#b3261e',
       /** LINE's own brand green. Change only if the channel changes. */
       line: '#06c755',
-      /**
-       * The product detail page runs on ONE ground across its three stacked
-       * sections, and it is the only page whose ground a shop routinely wants
-       * to move on its own — a catalogue reads differently on warm paper than
-       * the home page does. It shipped as --color-soft, which is also the hero
-       * and trust-strip ground, so moving it moved those too.
-       *
-       * Starts at the value it used to inherit, so this is a knob rather than a
-       * restyle.
-       */
-      'product-bg': '#f5f5f5',
-      /**
-       * The login screen's ground. One card on a field, and the field is the
-       * only thing on it, so it is worth being able to set on its own — the
-       * card carries a border, so the two are allowed to sit at the same
-       * value. Starts at what it used to inherit from --color-soft.
-       */
-      'login-bg': '#f5f5f5',
-      /**
-       * The login card's edge. Its own value because it can end up doing a job
-       * no other rule on the site does: when login-bg and surface are set to
-       * the same colour, this line is the entire card. Starts at what it used
-       * to inherit from --border-soft.
-       */
-      'login-border': '#cccccc',
-      /**
-       * The contact strip above the footer — its ground and its ink.
-       *
-       * Its own pair rather than a reuse of --cta-dark, which the footer
-       * effectively duplicates: the two blocks touch, and when they carry the
-       * same value the call to action dissolves into the footer. Kept apart by
-       * the audit, not by convention.
-       *
-       * Nothing here has to be dark. A pale panel is a matter of setting a pale
-       * ground and a dark ink; the block reads both from these two.
-       */
-      'contact-bg': '#2e2e2e',
+      'product-bg': '#faf9f6',
+      'login-bg': '#f3f2ef',
+      'login-border': '#e2ded8',
+      /* The LINE band: the accent itself, as drawn. White title (5.79), and
+         the eyebrow lifted to #dee4e9 (4.52) from the comp's 1.66. */
+      'contact-bg': '#496982',
       'contact-text': '#ffffff',
-      /**
-       * The footer runs DARK — its ground, its ink and its rules. They are
-       * four tokens rather than an inversion of the page palette because a
-       * shop that darkens its footer usually shifts its hue too, and an
-       * inversion has nowhere to say so.
-       */
-      'footer-bg': '#1a1a1a',
-      'footer-text': '#c4c4c4',
-      'footer-heading': '#ffffff',
-      'footer-rule': '#3a3a3a',
+      'contact-eyebrow': '#dee4e9',
+      /* The PALE footer. Body in the secondary grey the comp draws lighter,
+         wordmark and headings in ink. 5.05:1 away from the steel band above
+         it, so the two read as two blocks. */
+      'footer-bg': '#f2efeb',
+      'footer-text': '#6d6d6f',
+      'footer-heading': '#1b1d24',
+      'footer-rule': '#e2ded8',
 
-      /* ---- Grounds a block can run on -------------------------------------
-       *
-       * A block's ground is its own token, so it can move without dragging
-       * every other block that happened to share one. `.catalogue` and
-       * `.catalogue-card` in particular used to read the SAME token, which
-       * made "a dark band holding pale cards" unsayable — any value moved
-       * both, and the card survived as a 1px border. `.scenes` / `.scene-card`
-       * were already separate; this is the inconsistency, not the design.
-       *
-       * Every value below is what the selector used to inherit, so declaring
-       * them changes nothing until a shop moves one.
-       */
-      'catalogue-bg': '#ffffff',
-      'catalogue-card-bg': '#ffffff',
-      'scenes-bg': '#ebebeb',
-      'scene-card-bg': '#ffffff',
-      'trust-bg': '#f5f5f5',
+      'catalogue-bg': '#faf9f6',
+      /* The page's own value: no card, as drawn. */
+      'catalogue-card-bg': '#faf9f6',
+      'scenes-bg': '#faf9f7',
+      /* The occasion cards are photographs with the caption set ON them, so
+         the card ground is the dark wash the caption stands on, not paper —
+         see groundPolarity.sceneCard and HomeLanding. */
+      'scene-card-bg': '#1b1d24',
+      'trust-bg': '#f3f2ef',
+      /* The strip behind each FAQ row. Declared as a pale page ground in
+         `grounds.light.on` below, so the question ink is measured on it. */
+      'faq-row-bg': '#f4f2f0',
 
-      /* ---- The ink set for a DARK ground -----------------------------------
-       *
-       * The palette already had one of these: the footer's four tokens. What
-       * it did not have was a way to use them anywhere else, so a second dark
-       * block meant a second private set — and the shop that wanted four of
-       * them (header, catalogue band, contact, footer) would be maintaining
-       * sixteen tokens that all mean the same six things.
-       *
-       * These are that set, named for the JOB rather than the place, so any
-       * block declaring `dark` in `groundPolarity` reads them. The four ink
-       * levels mirror the light ones exactly — strong / body / soft / muted —
-       * because a dark block needs the same distinctions a pale one does.
-       *
-       * They START AT THE FOOTER'S OWN VALUES, and that is not laziness — the
-       * footer is the one dark block this palette already has, so its inks are
-       * the only reversed values that have been looked at on a real ground and
-       * checked by `audit:color`. Seeding from anywhere else would ship a dark
-       * half nobody has ever seen against this shop's dark ground. The three
-       * body levels therefore start equal, because the footer only ever drew
-       * two: a shop that wants a hierarchy on its dark bands separates them
-       * deliberately rather than inheriting a guess.
-       *
-       * Unused at these defaults — the template ships every block light.
-       */
       'on-dark-strong': '#ffffff',
-      'on-dark-ink': '#c4c4c4',
-      'on-dark-soft': '#c4c4c4',
-      'on-dark-muted': '#c4c4c4',
-      'on-dark-rule': '#3a3a3a',
-      /**
-       * The accent AS IT APPEARS ON A DARK GROUND. Its own value because a
-       * mid-toned brand colour cannot clear AA against both a pale ground and
-       * a dark one — the intersection is empty, and every shop that tried
-       * ended up darkening its brand colour a step to buy a compromise that
-       * neither ground wanted. One name, two values, resolved by whichever
-       * ground the block declared.
-       */
-      'on-dark-accent': '#ffffff'
+      'on-dark-ink': '#e8e9ec',
+      'on-dark-soft': '#c5c8cf',
+      'on-dark-muted': '#a3a6ae',
+      'on-dark-rule': '#3a3d47',
+      'on-dark-accent': '#b9cad8'
     },
 
     /** Text colours. The typographic SCALE lives in src/styles/tokens.css. */
     text: {
-      primary: '#1a1a1a',
-      secondary: '#444444',
-      muted: '#666666',
-      faint: '#999999'
+      primary: '#1b1d24',
+      /** Product names. 8.18 on the page. */
+      secondary: '#4a4b58',
+      /** Prices, in the comp's warm brown. 9.73 on the page. */
+      muted: '#563a34',
+      /** Darkened from the comp's 2.6:1 greys — see the departures above. */
+      faint: '#6d6d6f',
+      /** FAQ questions: the comp's #6d7279 one step darker (4.65 on the strip). */
+      question: '#696d74'
     },
 
+    /* Every family named first here is one `fontStylesheets` above actually
+       loads, or one the device ships. */
     font: {
-      body: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif',
-      sans: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif',
-      serif: 'Georgia, "Noto Serif TC", "Times New Roman", serif',
-      'serif-display': 'Georgia, "Noto Serif TC", "Times New Roman", serif',
-      'zh-sans': 'system-ui, -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif'
-      /*
-       * OPTIONAL: `hero` -> `--font-hero`, read by the hero title alone.
-       *
-       * Not declared here, and the absence IS the behaviour: the rule is
-       * `var(--font-hero, var(--font-serif))`, so a shop that says nothing
-       * keeps its hero on the same family as every other heading. Add the key
-       * only to set that ONE heading apart — `--font-serif` still carries the
-       * rest, so moving one no longer moves both.
-       */
+      body: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif',
+      sans: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif',
+      serif: '"Noto Serif TC", "Songti TC", "PMingLiU", Georgia, serif',
+      'serif-display': '"Noto Serif TC", "Songti TC", "PMingLiU", Georgia, serif',
+      'zh-sans': 'system-ui, -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif',
+      /** The one handwritten line. Read by HomeLanding alone. */
+      script: '"Mrs Saint Delafield", "Snell Roundhand", "Segoe Script", cursive'
     },
 
-    /**
-     * Bare-named greys the cart / member panels share. They were a second,
-     * subtree-scoped palette before the extraction; folding them into `:root`
-     * removed the only place two colour systems could disagree.
-     */
     ui: {
-      'cta-dark': '#1a1a1a',
-      border: '#dddddd',
-      'border-soft': '#cccccc',
-      divider: '#eeeeee',
-      'thumb-bg': '#f2f2f2',
-      'pill-bg': '#f0f0f0',
-      /*
-       * The scrim over a full-bleed hero photograph, top and bottom.
-       * Read by `src/components/common/PageHero.astro` and by nothing else.
-       *
-       * In `ui` and not in `color`, deliberately. A `color.*-bg` is a GROUND —
-       * a flat background whose inks `audit:color` measures for contrast, and
-       * `assertGroundsCover` refuses one that belongs to no ground. A scrim is
-       * neither: it is a translucent wash over a photograph nobody has chosen
-       * yet, and there is no ratio to compute against an unknown image. Filing
-       * it as a colour would mean inventing a ground for it to satisfy a
-       * measurement that could not mean anything.
-       *
-       * Two stops rather than one because the load is at the foot: the hero
-       * carries its title high and its breadcrumb low, and a flat wash strong
-       * enough for the low end greys out the whole photograph.
-       */
-      'overlay-top': 'rgba(20, 20, 20, 0.25)',
-      'overlay-bottom': 'rgba(20, 20, 20, 0.55)'
+      /* The near-black the 404, the member panel and the cart drawer paint —
+         the ink itself, so the dark ink set is measured on the ground it lands
+         on. */
+      'cta-dark': '#1b1d24',
+      border: '#e2ded8',
+      'border-soft': '#d5d0c9',
+      divider: '#ebe8e3',
+      'thumb-bg': '#efece7',
+      'pill-bg': '#f2f0ec',
+      'overlay-top': 'rgba(27, 29, 36, 0.25)',
+      'overlay-bottom': 'rgba(27, 29, 36, 0.55)'
     }
   },
 
   /**
-   * Every block ships on the pale ground, which is the shape the template has
-   * always had: one pale page, one dark footer. Moving one to `dark` switches
-   * the block's ink, its hairlines and its accent together — it does NOT set
-   * the background, which stays the matching `--color-*-bg` token, because a
-   * shop that darkens a band nearly always wants its own hue rather than a
-   * generic near-black.
-   *
-   * The two halves are checked against each other. Darkening the background
-   * and leaving the block on the pale ground fails `audit:color` on the spot,
-   * rather than shipping a band whose type has gone invisible.
+   * Every block pale except the occasion cards, whose captions sit on a dark
+   * wash over the photograph — they stand on the dark ground, and are
+   * measured against it.
    */
   groundPolarity: {
     header: 'light',
@@ -531,7 +484,49 @@ export const identity: Identity = {
     catalogue: 'light',
     catalogueCard: 'light',
     scenes: 'light',
-    sceneCard: 'light'
+    sceneCard: 'dark'
+  },
+
+  grounds: {
+    /* The template's pale-ground inks plus `text.faint` and `text.question`,
+       which this shop sets its secondary lines and FAQ questions in; and the
+       template's pale grounds plus `faq-row-bg`, which those questions stand
+       on. A field REPLACES the default, so both lists are restated in full. */
+    light: {
+      on: [
+        'color.surface',
+        'color.soft',
+        'color.mist',
+        'color.product-bg',
+        'color.login-bg',
+        'color.faq-row-bg',
+        /* The pale blocks groundPolarity places here. Replacing `on` drops
+           the ones it would have added, so they are restated too. */
+        'color.header-bg',
+        'color.trust-bg',
+        'color.catalogue-bg',
+        'color.catalogue-card-bg',
+        'color.scenes-bg'
+      ],
+      ink: [
+        'color.ink',
+        'color.text',
+        'color.muted',
+        'text.primary',
+        'text.secondary',
+        'text.muted',
+        'text.faint',
+        'text.question',
+        'color.cta'
+      ]
+    },
+    /* The LINE band carries two inks: the white title and the lifted eyebrow.
+       Its button is the page's paper with steel lettering, declared as a
+       fill so both halves are checked. */
+    contact: {
+      ink: ['color.contact-text', 'color.contact-eyebrow'],
+      fill: { 'color.surface': 'color.contact-bg' }
+    }
   }
 };
 

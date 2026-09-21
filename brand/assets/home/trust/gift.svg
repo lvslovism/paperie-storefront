@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="送禮首選">
+  <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 19h30v7H9Z"/>
+    <path d="M11 26h26v14H11Z"/>
+    <path d="M24 19v21"/>
+    <path d="M24 19c-2-6-9-8-9-3.5 0 2.6 4 3.5 9 3.5Z"/>
+    <path d="M24 19c2-6 9-8 9-3.5 0 2.6-4 3.5-9 3.5Z"/>
+  </g>
+</svg>

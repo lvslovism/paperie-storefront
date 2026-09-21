@@ -1,17 +1,31 @@
 ---
 /**
- * A single-page landing home, laid out from design-mockups/01-home.png:
- *   hero → trust strip → catalogue → occasion cards → LINE contact strip
+ * This shop's one-page home, laid out from design-mockups/01-home.png:
+ *   hero → trust strip → catalogue → occasion cards → FAQ → LINE strip
  *
- * One of two presets (see brand/copy.ts `home`). Unlike HomeMultipage this one
- * SELLS — the catalogue block adds to the cart in place — so it needs variant
- * ids, which the list endpoint does not carry. Hence the same list→detail pass
- * the PDP's getStaticPaths makes; getProduct memoises per handle for the whole
- * build, so the details are fetched once and shared between the two.
+ * Shop-owned (README → Template boundary). It started from the template's
+ * HomeLanding at 0c84048 and departs from it where the comp draws something
+ * the template's version does not:
  *
- * The contact strip's phone / e-mail / service hours are DERIVED from the
- * merchant record, not written in brand/copy.ts — same source the footer, the
- * contact page and the legal pages read, so the four cannot disagree.
+ *   hero        a handwritten line in the photograph's lower-right corner
+ *               (`hero.script`) and a letterspaced tagline at the foot of the
+ *               copy (`hero.tagline`). The button stays.
+ *   trust       each glyph in a thin ring.
+ *   catalogue   the title set left with a short rule after it; NO card —
+ *               the photograph sits on the page and the text under it.
+ *   occasions   FOUR columns where the template has three, the captions set
+ *               ON the photographs over a dark wash. Breakpoints: 4 above
+ *               1024px, 2 from 1024px to 561px, 1 at 560px and below (the same
+ *               as ATELIER COOK's).
+ *   FAQ         the title set left with a rule, a label opposite it, and each
+ *               question on its own pale strip.
+ *   LINE strip  eyebrow, title and a pale button, centred — no company
+ *               details, no QR and no LINE mark. The footer directly below
+ *               carries the details, and the comp draws them there, once.
+ *
+ * Data flow is the template's, unchanged: the catalogue comes from the API
+ * (`?sort=featured`, detail pass for the variant range), and the FAQ's derived
+ * answers come from merchant config.
  */
 import Button from "../common/Button.astro";
 import type { HomeLandingCopy } from "../../../brand/copy";
@@ -23,7 +37,6 @@ import { sizeAttrs } from "../../lib/image-size";
 import { assertHeroCopy, heroAlign, heroCopyGround, heroMobileCopyGround, heroScrim } from "../../lib/hero-copy";
 import { flags } from "../../lib/features";
 import {
-  deriveLegalContact,
   derivePaymentFaqAnswer,
   deriveShippingFaqAnswer,
 } from "../../lib/content-derivation.mjs";
@@ -119,7 +132,6 @@ const cards = details.map((product: any) => {
 });
 
 const merchant = await getMerchant();
-const company = deriveLegalContact(merchant?.storefront_config);
 
 // The payment and shipping answers are PROJECTED from the same merchant config
 // checkout renders from — the questions live in brand/copy.ts, the answers to
@@ -214,7 +226,12 @@ const freeShippingThreshold = merchant?.shipping_config?.free_shipping_threshold
       <h1>{hero.title}</h1>
       <p class="hero-body">{hero.description}</p>
       <Button href={hero.ctaHref}>{hero.ctaLabel}</Button>
+      {hero.tagline && <p class="hero-tagline" lang="en">{hero.tagline}</p>}
     </div>
+    {/* Decoration on the photograph's far side, wide screens only. It is the
+        page's words in a script face, so it is text, not an image — but it is
+        not part of the copy block and does not travel with it. */}
+    {hero.script && <p class="hero-script" lang="en">{hero.script}</p>}
   </section>
 
   {trust.items.length > 0 && (
@@ -247,9 +264,9 @@ const freeShippingThreshold = merchant?.shipping_config?.free_shipping_threshold
       <div class="container">
         <div class="section-head">
           <div>
-            <p class="eyebrow">{catalogue.eyebrow}</p>
+            {catalogue.eyebrow && <p class="eyebrow">{catalogue.eyebrow}</p>}
             <h2 class="section-title">{catalogue.title}</h2>
-            <p class="lead">{catalogue.lead}</p>
+            {catalogue.lead && <p class="lead">{catalogue.lead}</p>}
           </div>
           {/* A one-page shop has nowhere to send anyone from here — this block
               already IS the whole catalogue — so the link is optional and its
@@ -293,11 +310,15 @@ const freeShippingThreshold = merchant?.shipping_config?.free_shipping_threshold
   {scenes.items.length > 0 && (
     <section class="section scenes" id="scenes" data-section="scenes" {...ground("scenes")}>
       <div class="container">
-        <h2 class="section-title scenes-title">{scenes.title}</h2>
+        <div class="scenes-head">
+          <h2 class="section-title scenes-title">{scenes.title}</h2>
+          {scenes.eyebrow && <p class="scenes-eyebrow" lang="en">{scenes.eyebrow}</p>}
+        </div>
+        {/* Four columns in this shop — see the breakpoints at the foot. */}
         <div class="scene-grid">
           {scenes.items.map((item) => (
             <article class="scene-card" {...ground("sceneCard")}>
-              <img src={item.image} alt={item.title} {...sizeAttrs(item.image)} loading="lazy" decoding="async" />
+              <img src={item.image} alt={item.imageAlt ?? item.title} {...sizeAttrs(item.image)} loading="lazy" decoding="async" />
               <div>
                 <h3>{item.title}</h3>
                 <p>{item.text}</p>
@@ -313,16 +334,17 @@ const freeShippingThreshold = merchant?.shipping_config?.free_shipping_threshold
     <section class="section faq-block" id="faq" data-section="faq">
       <div class="container faq-grid">
         <div class="faq-head">
-          <p class="eyebrow">{faq.eyebrow}</p>
+          {faq.eyebrow && <p class="eyebrow">{faq.eyebrow}</p>}
           <h2 class="section-title">{faq.title}</h2>
-          <p class="lead">{faq.lead}</p>
+          {faq.lead && <p class="lead">{faq.lead}</p>}
+          {faq.aside && <p class="faq-aside-label" lang="en">{faq.aside}</p>}
         </div>
         {/* <details> disclosure: open/close is the browser's, so every answer is
             readable before — and without — JavaScript, and all of them are in
-            the HTML for a crawler either way. */}
+            the HTML for a crawler either way. All closed, as drawn. */}
         <div class="faq-list">
-          {faqItems.map((item, index) => (
-            <details open={index === 0}>
+          {faqItems.map((item) => (
+            <details>
               <summary>{item.question}</summary>
               <p>{item.answer}</p>
             </details>
@@ -332,54 +354,23 @@ const freeShippingThreshold = merchant?.shipping_config?.free_shipping_threshold
     </section>
   )}
 
-  {/* The contact strip: the pitch on the left, the derived company details in
-      the middle, the QR on the right. Every glyph here is INLINE, so
-      `currentColor` resolves and each one follows the palette — the trap in
-      pitfall #5 is external <img> SVGs, not these. */}
+  {/* The LINE strip: the olive band above the footer. `id="contact"` is the
+      anchor src/lib/line.ts falls back to and the footer's 聯絡我們 link
+      targets, so it stays whatever this block looks like.
+
+      No company details and no QR: the footer directly below carries the
+      details, and the comp draws them there, once. */}
   <section class="line-strip" id="contact" data-section="line_cta">
     <div class="container line-grid">
-      <div class="line-pitch">
-        <span class="line-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path fill="currentColor" d="M12 3.2c-5.13 0-9.3 3.4-9.3 7.58 0 3.75 3.3 6.89 7.78 7.48.3.07.71.2.82.46.1.24.06.6.03.85l-.13.79c-.4.23-.19.92.8.52.99-.4 5.35-3.15 7.3-5.39 1.35-1.48 1.99-2.98 1.99-4.71 0-4.18-4.17-7.58-9.29-7.58Z"></path>
-            <path fill="var(--color-line)" d="M8.2 8.95h-.65a.18.18 0 0 0-.18.18v4.05c0 .1.08.18.18.18h.65c.1 0 .18-.08.18-.18V9.13a.18.18 0 0 0-.18-.18Zm4.49 0h-.65a.18.18 0 0 0-.18.18v2.41l-1.86-2.51-.01-.02-.01-.01h-.72a.18.18 0 0 0-.18.18v4.05c0 .1.08.18.18.18h.65c.1 0 .18-.08.18-.18v-2.4l1.86 2.51.4.04h.7c.1 0 .18-.08.18-.18V9.13a.18.18 0 0 0-.18-.18Zm-5.94 3.4H5.03V9.13a.18.18 0 0 0-.18-.18H4.2a.18.18 0 0 0-.18.18v4.05c0 .05.02.09.05.12.03.03.08.05.13.05h2.55c.1 0 .18-.08.18-.18v-.65a.18.18 0 0 0-.18-.18Zm9.96-3.4h-2.55a.18.18 0 0 0-.18.18v4.05c0 .1.08.18.18.18h2.55c.1 0 .18-.08.18-.18v-.65a.18.18 0 0 0-.18-.18h-1.72v-.66h1.72c.1 0 .18-.08.18-.18v-.65a.18.18 0 0 0-.18-.18h-1.72v-.67h1.72c.1 0 .18-.08.18-.18v-.65a.18.18 0 0 0-.18-.18Z"></path>
-          </svg>
-        </span>
-
-        <div class="line-copy">
-          <h2>{lineCta.title.replace("{channel}", identity.line.id)}</h2>
-          {lineCta.lines.map((line) => <p>{line}</p>)}
-          <a class="line-btn" href={identity.line.addFriendUrl}>
-            <span>{lineCta.buttonLabel}</span>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h14.5M13 6.2 19.2 12 13 17.8"></path></svg>
-          </a>
-        </div>
+      <div class="line-copy">
+        {lineCta.eyebrow && <p class="line-eyebrow" lang="en">{lineCta.eyebrow}</p>}
+        <h2>{lineCta.title.replace("{channel}", identity.line.id)}</h2>
+        {lineCta.lines.map((line) => <p>{line}</p>)}
       </div>
-
-      {/* Derived, not authored — the same company block the footer renders. */}
-      <ul class="line-details">
-        <li>
-          <span class="line-glyph" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6.6 3.2h2.9l1.5 3.9-2 1.5a11.2 11.2 0 0 0 5 5l1.5-2 3.9 1.5v2.9a2 2 0 0 1-2.2 2A15.6 15.6 0 0 1 4.6 5.4a2 2 0 0 1 2-2.2z"></path></svg></span>
-          <div><span class="line-label">客服專線</span><span class="line-value">{company.phone}</span></div>
-        </li>
-        <li>
-          <span class="line-glyph" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.2" y="5.6" width="17.6" height="12.8" rx="2"></rect><path d="m3.6 7 8.4 5.9L20.4 7"></path></svg></span>
-          <div><span class="line-label">客服信箱</span><span class="line-value">{identity.contact.email}</span></div>
-        </li>
-        <li>
-          <span class="line-glyph" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"></circle><path d="M12 7.4V12l3 1.9"></path></svg></span>
-          <div><span class="line-label">服務時間</span><span class="line-value">{company.serviceHours}</span></div>
-        </li>
-      </ul>
-
-      {/* No QR on file → no column. A square that scans to nothing is worse
-          than an absent one. */}
-      {identity.assets.lineQr && (
-        <figure class="line-qr">
-          <img src={identity.assets.lineQr} alt={lineCta.qrCaption} width="116" height="116" loading="lazy" decoding="async" />
-          <figcaption>{lineCta.qrCaption}</figcaption>
-        </figure>
-      )}
+      <a class="line-btn" href={identity.line.addFriendUrl} target="_blank" rel="noopener noreferrer">
+        <span>{lineCta.buttonLabel}</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h14.5M13 6.2 19.2 12 13 17.8"></path></svg>
+      </a>
     </div>
   </section>
 
@@ -972,95 +963,74 @@ const freeShippingThreshold = merchant?.shipping_config?.free_shipping_threshold
     }
   }
 
-  /* --- The contact strip -----------------------------------------------------
-     The band above the footer: the pitch, the derived company details, the QR.
-
-     Its ground is its OWN token rather than --cta-dark. Sharing --cta-dark made
-     it the same colour as the footer — identical in the template default, and
-     within a rounding error of it in every warm palette tried since — so the
-     two ran together into one slab and the CTA stopped reading as a call to
-     action. They are adjacent; nothing else painted --cta-dark is. The pair is
-     checked: audit-color.mjs fails the build when contact-bg and footer-bg are
-     not visibly apart, and when contact-text does not clear AA on contact-bg.
-
-     The band is not required to be dark. A shop whose comp puts a pale panel
-     here sets contact-bg pale and contact-text to its ink; nothing below reads
-     --color-on-dark, so the block follows the palette either way. */
+  /* --- The LINE strip -------------------------------------------------------
+     Steel blue — the accent itself — as its own ground (`contact` in
+     brand/identity.ts): a lifted eyebrow, a white title, and a pale button
+     whose fill and label are declared as a pair there. Centred, as drawn. */
 
   .line-strip {
-    padding-block: clamp(36px, 5vw, 56px);
+    padding-block: clamp(36px, 4.5vw, 52px);
     background: var(--color-contact-bg);
     color: var(--color-contact-text);
   }
 
   .line-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) auto;
-    align-items: center;
-    gap: clamp(24px, 4vw, 56px);
+    justify-items: center;
+    gap: var(--space-4);
+    text-align: center;
   }
 
-  .line-pitch {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: start;
-    gap: 18px;
+  .line-copy {
+    min-width: 0;
   }
 
-  /* LINE's own green, and LINE's own mark reversed out of it. This square is
-     the channel's, not the shop's — the brand accent here would misrepresent
-     whose account it is. */
-  .line-mark {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 56px;
-    height: 56px;
-    flex: none;
-    border-radius: var(--radius-sm);
-    background: var(--color-line);
-    color: var(--color-on-dark);
-  }
-
-  .line-mark svg {
-    width: 34px;
-    height: 34px;
+  .line-eyebrow {
+    margin: 0 0 10px;
+    color: var(--color-contact-eyebrow);
+    font-size: 11px;
+    letter-spacing: 0.26em;
+    line-height: 1.6;
   }
 
   .line-copy h2 {
     margin: 0;
     color: var(--color-contact-text);
     font-family: var(--font-serif);
-    font-size: var(--card-title-size);
+    font-size: clamp(22px, 2.4vw, 30px);
     font-weight: var(--title-weight);
-    letter-spacing: 0.06em;
-    line-height: var(--card-title-line-height);
+    letter-spacing: 0.08em;
+    line-height: 1.4;
+    text-wrap: balance;
   }
 
   .line-copy p {
-    margin: 8px 0 0;
+    margin: 10px 0 0;
     color: var(--color-contact-text);
     font-size: var(--description-text-size);
     line-height: 1.7;
-    opacity: 0.78;
   }
 
   .line-btn {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    margin-top: 18px;
+    gap: 12px;
     min-height: 46px;
-    padding: 12px 26px;
+    padding: 11px 30px;
     border-radius: var(--radius-sm);
-    background: var(--color-cta);
-    color: var(--color-cta-text);
+    background: var(--color-surface);
+    color: var(--color-contact-bg);
     font-size: var(--button-text-size);
     letter-spacing: var(--button-letter-spacing);
   }
 
   .line-btn:hover {
-    opacity: 0.9;
+    opacity: 0.92;
+  }
+
+  .line-btn:focus-visible {
+    outline: 2px solid var(--color-surface);
+    outline-offset: 3px;
   }
 
   .line-btn svg {
@@ -1074,138 +1044,362 @@ const freeShippingThreshold = merchant?.shipping_config?.free_shipping_threshold
     stroke-linejoin: round;
   }
 
-  .line-details {
-    display: grid;
-    gap: 16px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+
+  /* ==== This shop: below this line departs from the template ================ */
+
+  /* --- Hero ----------------------------------------------------------------
+     The title and the lead are authored lines. */
+  .hero-copy h1 {
+    max-width: 680px;
+    white-space: pre-line;
+    letter-spacing: 0.08em;
   }
 
-  .line-details li {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: center;
-    gap: 12px;
-    min-width: 0;
+  /* The eyebrow in the secondary ink, as drawn, rather than the accent. */
+  .hero-copy .eyebrow {
+    color: var(--hero-eyebrow-ink, var(--text-secondary));
+    font-size: 11px;
+    letter-spacing: 0.26em;
   }
 
-  /* The band ground is a free choice, so the glyph takes the band FOREGROUND.
-     It used to take --color-cta, which is invisible whenever a palette puts the
-     button colour and the band colour near each other — the template default
-     had both at the same value. */
-  .line-glyph {
-    display: inline-flex;
-    flex: none;
-    color: var(--color-contact-text);
-    opacity: 0.85;
+  .hero-copy .hero-body {
+    color: var(--hero-ink, var(--text-secondary));
   }
 
-  .line-glyph svg {
-    width: 22px;
-    height: 22px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.3;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
-  .line-label,
-  .line-value {
-    display: block;
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-
-  .line-label {
-    color: var(--color-contact-text);
-    font-size: var(--meta-text-size);
-    line-height: 1.5;
-    opacity: 0.72;
-  }
-
-  .line-value {
-    color: var(--color-contact-text);
-    font-size: var(--description-text-size);
-    line-height: 1.6;
-  }
-
-  .line-qr {
-    display: grid;
-    justify-items: center;
-    gap: 10px;
-    margin: 0;
-    padding: 12px;
-    border-radius: var(--radius-sm);
-    background: var(--color-surface);
-  }
-
-  .line-qr img {
-    display: block;
-    width: 116px;
-    height: 116px;
-  }
-
-  .line-qr figcaption {
-    color: var(--color-ink);
-    font-size: var(--meta-text-size);
+  /* The letterspaced line at the foot of the copy. */
+  .hero-tagline {
+    margin: 40px 0 0;
+    color: var(--hero-ink, var(--text-secondary));
+    font-size: 11px;
+    letter-spacing: 0.3em;
     line-height: 1.4;
-    text-align: center;
+  }
+
+  /* The handwritten line, in the photograph's UPPER-right corner. The comp
+     sets it lower right, but on this photograph that corner is the journal
+     and a mid-tone oak table, where no ink reaches 4.5 (measured: 18 of 18
+     glyphs under, min 1.00). Up here it stands on the blurred wall, over a
+     soft wash of the page ground. MEASURED: brand/copy.ts → hero. Wide
+     screens only: on a phone there is no free corner. */
+  .hero-script {
+    position: absolute;
+    z-index: 1;
+    right: clamp(24px, 4vw, 64px);
+    top: 12%;
+    margin: 0;
+    color: var(--hero-script-ink, var(--text-primary));
+    font-family: var(--font-script);
+    font-size: clamp(30px, 2.8vw, 42px);
+    line-height: 1.25;
+    text-align: right;
+    white-space: pre-line;
+    transform: rotate(-8deg);
+    transform-origin: right top;
+  }
+
+  .hero-script::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: -80% -30%;
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--color-surface) 97%, transparent) 66%,
+      transparent
+    );
+  }
+
+  /* --- Trust strip ---------------------------------------------------------
+     Each glyph in a thin ring, as drawn. The ring is the box's border; the
+     glyph is cut from a pseudo-element inside it, so the mask no longer clips
+     the ring away. */
+  .trust-strip {
+    padding-block: 36px 34px;
+  }
+
+  .trust-glyph {
+    position: relative;
+    width: 52px;
+    height: 52px;
+    margin-bottom: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    background: var(--color-surface);
+    -webkit-mask: none;
+    mask: none;
+  }
+
+  .trust-glyph::after {
+    content: "";
+    position: absolute;
+    inset: 13px;
+    background: var(--ground-ink-strong);
+    -webkit-mask: var(--glyph) center / contain no-repeat;
+    mask: var(--glyph) center / contain no-repeat;
+  }
+
+  .trust-list h2 {
+    color: var(--ground-ink-strong);
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .trust-list p {
+    margin-top: 4px;
+    color: var(--text-faint);
+    font-size: var(--meta-text-size);
+    letter-spacing: 0.04em;
+  }
+
+  /* --- Section heads: the title set left, a short rule after it ------------ */
+  .section-head {
+    justify-items: start;
+    margin-bottom: var(--space-4);
+    text-align: left;
+  }
+
+  .section-head .section-title,
+  .scenes-title,
+  .faq-head .section-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: auto;
+    margin: 0;
+    font-size: clamp(20px, 2vw, 24px);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-align: left;
+  }
+
+  .section-head .section-title::before {
+    content: none;
+  }
+
+  .section-head .section-title::after,
+  .scenes-title::after,
+  .faq-head .section-title::after {
+    content: "";
+    flex: none;
+    width: 40px;
+    height: 1px;
+    background: var(--color-border);
+  }
+
+  /* --- Catalogue: NO card ----------------------------------------------------
+     The photograph sits straight on the page, the name and price under it,
+     set left. catalogue-card-bg is the page's own value; the border and the
+     rounding go too. */
+  .catalogue-card {
+    border: 0;
+    border-radius: 0;
+  }
+
+  .catalogue-media img {
+    border-radius: var(--radius-sm);
+  }
+
+  .catalogue-body {
+    gap: 2px;
+    padding: 12px 0 4px;
+    text-align: left;
+  }
+
+  .catalogue-name {
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .catalogue-subtitle {
+    display: none;
+  }
+
+  .catalogue-price {
+    padding-top: 2px;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+  }
+
+  /* --- Occasion cards -------------------------------------------------------
+     Photographs with the caption set ON them, over a wash of the card's own
+     ground — the dark one (groundPolarity.sceneCard), so the white type is
+     standing on the ground it was audited against by the time it reaches the
+     caption. MEASURED per glyph on each photograph: brand/copy.ts → scenes. */
+  .scenes-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .scenes-eyebrow,
+  .faq-aside-label {
+    margin: 0;
+    color: var(--text-faint);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    line-height: 1.6;
+    text-align: right;
+  }
+
+  .scene-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .scene-card {
+    position: relative;
+    aspect-ratio: 6 / 5;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: var(--color-scene-card-bg);
+  }
+
+  .scene-card img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    object-fit: cover;
+  }
+
+  .scene-card::after {
+    content: "";
+    position: absolute;
+    inset: 35% 0 0;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      color-mix(in srgb, var(--color-scene-card-bg) 82%, transparent) 78%
+    );
+  }
+
+  .scene-card > div {
+    position: absolute;
+    z-index: 1;
+    inset: auto 0 0;
+    padding: 0 16px 14px;
+    text-align: left;
+  }
+
+  .scene-card h3 {
+    color: var(--ground-ink-strong);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
+
+  .scene-card p {
+    margin-top: 2px;
+    color: var(--ground-ink-strong);
+    font-size: var(--meta-text-size);
+    letter-spacing: 0.04em;
+  }
+
+  /* --- FAQ ------------------------------------------------------------------
+     The title set left with its rule, the label opposite, and each question
+     on its own pale strip. */
+  .faq-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+
+  .faq-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .faq-list {
+    gap: 10px;
+    border-top: 0;
+  }
+
+  .faq-list details {
+    border-bottom: 0;
+    border-radius: var(--radius-sm);
+    background: var(--color-faq-row-bg);
+  }
+
+  .faq-list summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: 11px 16px;
+    list-style: none;
+    color: var(--text-question);
+    font-size: var(--description-text-size);
+    letter-spacing: 0.04em;
+  }
+
+  .faq-list summary::-webkit-details-marker {
+    display: none;
+  }
+
+  /* The chevron, drawn from two borders so it takes the ink. */
+  .faq-list summary::after {
+    content: "";
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-right: 1.4px solid var(--text-primary);
+    border-bottom: 1.4px solid var(--text-primary);
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform 0.2s ease;
+  }
+
+  .faq-list details[open] summary::after {
+    transform: translateY(2px) rotate(-135deg);
+  }
+
+  .faq-list details[open] summary {
+    color: var(--text-primary);
+  }
+
+  .faq-list p {
+    padding: 0 16px 16px;
   }
 
   /* --- Breakpoints ---------------------------------------------------------
-     Mirrors the template's own: ProductGrid switches at 900px and 560px, and
-     the home hero re-anchors at 760px. */
+     The occasion grid is ATELIER COOK's, unchanged:
 
-  @media (max-width: 1100px) {
-    /* The pitch takes the full width and the details sit beside the QR — three
-       across is where the e-mail address starts breaking mid-word. */
-    .line-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      align-items: start;
-    }
+       above 1024px   4 columns
+       561–1024px     2 columns
+       560px and down 1 column
 
-    .line-pitch {
-      grid-column: 1 / -1;
-    }
-  }
+     The catalogue keeps the template's 900px step, and stays at TWO columns
+     on a phone: eight single-column cards is four screens of photographs. */
 
-  /* The two narrow steps CAP the count rather than fixing it: `min(3, cols)`,
-     so five entries read 3+2 and six read 3+3, and a strip of two is not
-     stretched across three columns because the viewport got narrower. */
   @media (max-width: 1024px) {
     .trust-list {
       grid-template-columns: repeat(var(--trust-cols-md), minmax(0, 1fr));
       row-gap: var(--space-5);
     }
+
+    .scene-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .hero-script {
+      display: none;
+    }
   }
 
   @media (max-width: 900px) {
-    .catalogue-grid,
-    .scene-grid {
+    .catalogue-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
   @media (max-width: 760px) {
-    /* The hero shortens, and that is the whole of the change: the copy stays
-       vertically CENTRED, same as the desktop rule it inherits.
-
-       It used to be `align-items: start`, which put a ~300px copy block at the
-       top of a 620px hero and left the bottom half as bare photograph. On a
-       phone that reads as the section having been cut off rather than composed
-       — there is no second column for the eye to go to, so the empty half is
-       simply empty.
-
-       The image keeps `center top`: a portrait crop is framed from its top
-       edge, and moving the COPY is not a reason to re-anchor the PICTURE.
-
-       This is also what makes the panel work here. `hero.copyGround: 'panel'`
-       draws on .hero-copy::before, which is positioned against .hero-copy
-       itself — centre the grid item and the panel moves with it, because it is
-       part of it. Centring the copy some other way (a margin, a translate on
-       the children) would have left the panel behind. */
     .home-hero {
       min-height: 620px;
     }
@@ -1214,32 +1408,43 @@ const freeShippingThreshold = merchant?.shipping_config?.free_shipping_threshold
       object-position: center top;
     }
 
+    .hero-copy h1 {
+      font-size: min(var(--hero-title-size), 8vw);
+    }
+
+    /* The portrait crop's top half is a bright window crossed by its frame,
+       and on a phone the copy runs the full width of it. The standard wash
+       left the lead's line ends on the glazing (6 glyphs, min 3.09), so the
+       wash is carried further across: solid to 55%, gone by 100%. */
+    .home-hero {
+      --scrim-solid: 55%;
+      --scrim-end: 100%;
+    }
+
     .trust-list {
       grid-template-columns: repeat(var(--trust-cols-sm), minmax(0, 1fr));
     }
 
-    .line-grid {
-      grid-template-columns: minmax(0, 1fr);
+    .scenes-head,
+    .faq-head {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-2);
+    }
+
+    .scenes-eyebrow,
+    .faq-aside-label {
+      text-align: left;
     }
   }
 
   @media (max-width: 560px) {
     .catalogue-grid {
-      grid-template-columns: minmax(0, 1fr);
-      gap: var(--space-3);
+      gap: var(--space-4) var(--space-3);
     }
 
     .scene-grid {
       grid-template-columns: minmax(0, 1fr);
-    }
-
-    .section-head .section-title {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
-    .section-head .section-title::before,
-    .section-head .section-title::after {
-      display: none;
     }
   }
 </style>

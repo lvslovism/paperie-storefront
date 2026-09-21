@@ -1,4 +1,4 @@
-<!-- template-placeholder: replace this file with real artwork. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 48" width="240" height="48" role="img" aria-label="Example">
-  <text x="0" y="24" fill="#1a1a1a" font-family="Georgia, serif" font-size="24" letter-spacing="6" dominant-baseline="middle">EXAMPLE</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 56" width="250" height="56" role="img" aria-label="PAPERIE">
+  <text x="0" y="24" fill="#1b1d24" font-family="'Noto Serif TC', Georgia, 'Times New Roman', serif" font-size="27" font-weight="600" letter-spacing="5" dominant-baseline="middle">PAPERIE</text>
+  <text x="2" y="46" fill="#4a4b58" font-family="Georgia, 'Times New Roman', serif" font-size="11" font-style="italic" letter-spacing="2" dominant-baseline="middle">Write a Better Day</text>
 </svg>
