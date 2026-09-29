@@ -467,20 +467,29 @@ export const homeLanding: HomeLandingCopy = {
    * A LIGHT photograph under dark copy, as drawn: a window-lit writing desk,
    * the copy on its calm left side, a pale wash from the left.
    *
+   * FULL-BLEED since 2026-09-29: min(88svh, 760px) tall on a desktop,
+   * min(78svh, 620px) on a phone, natural height on a landscape phone.
+   *
    * MEASURED per glyph, per docs/PITFALLS.md #7: each character's own rect,
    * with `.hero-copy > *` hidden (the script: its ink made transparent, so
-   * its wash stays), against the colour that character is set in. 2026-09-22,
-   * hero-v1 / hero-mobile-v1:
+   * its wash stays), against the colour that character is set in. 2026-09-29,
+   * hero-v2 (1920x1200) / hero-mobile-v2 (900x1400):
    *
-   *   1440x900, 1280x800, 1100x800   0 / 106 glyphs with any pixel under
-   *              4.5. The script was first set where the comp draws it, lower
-   *              right: that corner is the journal and a mid-tone oak table,
-   *              18 of 18 glyphs under (min 1.00). Moved to the upper right,
-   *              over the blurred wall and a soft page-ground wash: min 7.11.
-   *   820x1180   0 / 88 (no script at this width).
-   *   390x844    standard scrim: 7 / 88 (the lead's line ends on the window,
-   *              min 3.09). HomeLanding carries the wash further on a phone
-   *              (solid to 55%, gone by 100%): 0 / 88, min 6.40.
+   *   1440x900   0 glyphs under 4.5. Minimums: eyebrow 8.11, title 11.76,
+   *              lead 7.72, tagline 7.31, script 7.18 (upper right, over the
+   *              blurred wall and its page-ground wash).
+   *   1280x800   0. eyebrow 8.11, title 12.94, lead 7.98, tagline 7.91,
+   *              script 8.04.
+   *   1100x800   0. eyebrow 8.11, title 13.29, lead 7.74, tagline 7.44,
+   *              script 7.20.
+   *   820x1180   0 (no script at this width). eyebrow 7.39, title 13.51,
+   *              lead 6.86, tagline 6.44.
+   *   390x844    0 (phone wash solid to 55%). eyebrow 7.90, title 13.63,
+   *              lead 6.63, tagline 6.50.
+   *   844x500    landscape, 0. eyebrow 7.44, title 12.25, lead 6.20,
+   *              tagline 6.28.
+   *   Button: its fill against the photograph around it 5.45, the label on
+   *   the fill 5.79.
    *
    * A conclusion about THESE words on THESE crops. Change either, measure again.
    */
@@ -498,8 +507,8 @@ export const homeLanding: HomeLandingCopy = {
     tagline: 'WRITE / PLAN / CREATE / LIVE',
     ctaLabel: '立即探索 →',
     ctaHref: '#catalogue',
-    image: '/assets/home/hero-v1.jpg',
-    mobileImage: '/assets/home/hero-mobile-v1.jpg',
+    image: '/assets/home/hero-v2.jpg',
+    mobileImage: '/assets/home/hero-mobile-v2.jpg',
     imageAlt: '書桌上的皮革手帳與眼鏡，旁邊亮著一盞暖色桌燈'
   },
 

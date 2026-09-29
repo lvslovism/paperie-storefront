@@ -1066,6 +1066,24 @@ const freeShippingThreshold = merchant?.shipping_config?.free_shipping_threshold
     color: var(--hero-ink, var(--text-secondary));
   }
 
+  /* A capped full-bleed hero: nearly the whole first screen, but never so
+     tall that the trust strip's top edge drops out of view — that edge is
+     the hint there is more below. svh after vh: browsers that know svh
+     (which excludes the collapsing address bar) take the second line. */
+  .home-hero {
+    min-height: min(88vh, 760px);
+    min-height: min(88svh, 760px);
+  }
+
+  /* A phone turned sideways has ~390px of height: a percentage of it would
+     crush the copy, so the hero takes its natural height there. */
+  @media (orientation: landscape) and (max-height: 500px) {
+    .home-hero {
+      min-height: 0;
+      padding-block: 36px;
+    }
+  }
+
   /* The letterspaced line at the foot of the copy. */
   .hero-tagline {
     margin: 40px 0 0;
@@ -1401,7 +1419,8 @@ const freeShippingThreshold = merchant?.shipping_config?.free_shipping_threshold
 
   @media (max-width: 760px) {
     .home-hero {
-      min-height: 620px;
+      min-height: min(78vh, 620px);
+      min-height: min(78svh, 620px);
     }
 
     .home-hero img {
