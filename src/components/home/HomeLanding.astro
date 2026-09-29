@@ -1066,22 +1066,23 @@ const freeShippingThreshold = merchant?.shipping_config?.free_shipping_threshold
     color: var(--hero-ink, var(--text-secondary));
   }
 
-  /* A capped full-bleed hero: nearly the whole first screen, but never so
-     tall that the trust strip's top edge drops out of view — that edge is
-     the hint there is more below. svh after vh: browsers that know svh
-     (which excludes the collapsing address bar) take the second line. */
-  .home-hero {
-    min-height: min(88vh, 760px);
-    min-height: min(88svh, 760px);
-  }
+  /* A FULL-BLEED hero: from the header's foot to the viewport's. The header
+     is the template's, sticky and NOT laid over the photograph, so a 100svh
+     hero would push its own lower edge off the first screen; the hero takes
+     the viewport less the header instead. --header-h is the header's
+     rendered height, MEASURED: 77px above 760px, 65px at and below.
+     svh after vh: browsers that know svh (which excludes the collapsing
+     address bar) take the second line.
 
-  /* A phone turned sideways has ~390px of height: a percentage of it would
-     crush the copy, so the hero takes its natural height there. */
-  @media (orientation: landscape) and (max-height: 500px) {
-    .home-hero {
-      min-height: 0;
-      padding-block: 36px;
-    }
+     The pale wash is pulled back from the standard (solid to 26%, gone by
+     68%) to solid to 22%, gone by 62%: the most photograph the copy allows.
+     MEASURED: brand/copy.ts → hero. */
+  .home-hero {
+    --header-h: 77px;
+    --scrim-solid: 22%;
+    --scrim-end: 62%;
+    min-height: calc(100vh - var(--header-h));
+    min-height: calc(100svh - var(--header-h));
   }
 
   /* The letterspaced line at the foot of the copy. */
@@ -1419,25 +1420,31 @@ const freeShippingThreshold = merchant?.shipping_config?.free_shipping_threshold
 
   @media (max-width: 760px) {
     .home-hero {
-      min-height: min(78vh, 620px);
-      min-height: min(78svh, 620px);
+      --header-h: 65px;
+      align-items: start;
     }
 
     .home-hero img {
       object-position: center top;
     }
 
+    .hero-copy {
+      padding-top: 32px;
+    }
+
     .hero-copy h1 {
       font-size: min(var(--hero-title-size), 8vw);
     }
 
-    /* The portrait crop's top half is a bright window crossed by its frame,
-       and on a phone the copy runs the full width of it. The standard wash
-       left the lead's line ends on the glazing (6 glyphs, min 3.09), so the
-       wash is carried further across: solid to 55%, gone by 100%. */
+    /* On a phone the copy sits at the TOP of the portrait crop, over the
+       bright window, and a wash of the page's own pale ground runs DOWN from
+       there: solid only as far as the copy's last line, then gone, so the
+       table and the open notebook below are the photograph as shot.
+       MEASURED: brand/copy.ts → hero. */
     .home-hero {
-      --scrim-solid: 55%;
-      --scrim-end: 100%;
+      --scrim-angle: 180deg;
+      --scrim-solid: 330px;
+      --scrim-end: 440px;
     }
 
     .trust-list {
@@ -1464,6 +1471,42 @@ const freeShippingThreshold = merchant?.shipping_config?.free_shipping_threshold
 
     .scene-grid {
       grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  /* A phone turned sideways has ~390px of height: the hero takes its natural
+     height there, tightened, and is capped at the space under the header so
+     it never runs past the first screen. LAST in the sheet, so it also
+     overrides the phone block's top anchoring on a sideways phone narrower
+     than 760px. MEASURED at 844x390, 844x500 and 740x360. */
+  @media (orientation: landscape) and (max-height: 500px) {
+    .home-hero {
+      align-items: center;
+      min-height: 0;
+      max-height: calc(100vh - var(--header-h));
+      max-height: calc(100svh - var(--header-h));
+      padding-block: 12px;
+    }
+
+    .hero-copy {
+      padding-top: 0;
+    }
+
+    .hero-copy .eyebrow {
+      margin-top: 0;
+    }
+
+    .hero-copy h1 {
+      margin-block: 10px 12px;
+      font-size: 30px;
+    }
+
+    .hero-copy .hero-body {
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .hero-tagline {
+      margin-top: 10px;
     }
   }
 </style>

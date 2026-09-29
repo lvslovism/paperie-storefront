@@ -467,28 +467,36 @@ export const homeLanding: HomeLandingCopy = {
    * A LIGHT photograph under dark copy, as drawn: a window-lit writing desk,
    * the copy on its calm left side, a pale wash from the left.
    *
-   * FULL-BLEED since 2026-09-29: min(88svh, 760px) tall on a desktop,
-   * min(78svh, 620px) on a phone, natural height on a landscape phone.
+   * FULL-BLEED: the viewport less the header (77px above 760px, 65px at and
+   * below); a phone turned sideways keeps its natural height, tightened and
+   * capped under the header.
    *
    * MEASURED per glyph, per docs/PITFALLS.md #7: each character's own rect,
    * with `.hero-copy > *` hidden (the script: its ink made transparent, so
    * its wash stays), against the colour that character is set in. 2026-09-29,
-   * hero-v2 (1920x1200) / hero-mobile-v2 (900x1400):
+   * hero-v2 (1920x1200) / hero-mobile-v2 (900x1400). 0 glyphs under 4.5 at
+   * every size below.
    *
-   *   1440x900   0 glyphs under 4.5. Minimums: eyebrow 8.11, title 11.76,
-   *              lead 7.72, tagline 7.31, script 7.18 (upper right, over the
-   *              blurred wall and its page-ground wash).
-   *   1280x800   0. eyebrow 8.11, title 12.94, lead 7.98, tagline 7.91,
-   *              script 8.04.
-   *   1100x800   0. eyebrow 8.11, title 13.29, lead 7.74, tagline 7.44,
-   *              script 7.20.
-   *   820x1180   0 (no script at this width). eyebrow 7.39, title 13.51,
-   *              lead 6.86, tagline 6.44.
-   *   390x844    0 (phone wash solid to 55%). eyebrow 7.90, title 13.63,
-   *              lead 6.63, tagline 6.50.
-   *   844x500    landscape, 0. eyebrow 7.44, title 12.25, lead 6.20,
-   *              tagline 6.28.
-   *   Button: its fill against the photograph around it 5.45, the label on
+   *   Desktop wash: solid to 22%, gone by 62% (HomeLanding; the standard is
+   *   26% / 68%, and 20% / 60% left the tagline at 4.55 at 820).
+   *   1920x1080  eyebrow 6.04, title 9.99, lead 5.43, tagline 6.18,
+   *              script 8.94.
+   *   1440x900   eyebrow 6.90, title 10.05, lead 7.14, tagline 6.33,
+   *              script 6.74.
+   *   1280x800   eyebrow 7.96, title 11.14, lead 7.21, tagline 7.12,
+   *              script 7.24.
+   *   1100x800   eyebrow 7.17, title 11.56, lead 7.26, tagline 6.76,
+   *              script 6.89.
+   *   820x1180   no script. eyebrow 6.80, title 12.54, lead 6.57,
+   *              tagline 4.88.
+   *   Phones: the copy at the top of the crop, the pale wash running down,
+   *   solid to 330px, gone by 440px. The tagline, the last and smallest
+   *   line, sets the length: 300px / 420px left it at 3.56 (414x896).
+   *   390x844 tagline 5.52; 360x740 5.92; 375x667 5.75; 414x896 5.04;
+   *   320x568 6.59. Eyebrow, title and lead sit on the solid band: 8.11+.
+   *   844x390 and 844x500: eyebrow 6.45, title 12.34, lead 5.41, tagline
+   *   5.98. 740x360: 8.11.
+   *   Button: its fill against the photograph min 4.71 (1920), the label on
    *   the fill 5.79.
    *
    * A conclusion about THESE words on THESE crops. Change either, measure again.
